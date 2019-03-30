@@ -37,6 +37,12 @@ public class CinemaBean implements CinemaBeanLocal {
     }
     
     @Override
+    public List<Programation> showProgramme(String contains) {
+        TypedQuery<Programation> q = em.createNamedQuery("Programation.findContain", Programation.class);
+        q.setParameter("c", contains);
+        return q.getResultList();
+    }
+    @Override
     public Acteur addActor(String nom, String prenom, int cote) {
         Acteur a = new Acteur(null, nom, prenom, cote);
         persist(a);

@@ -23,7 +23,7 @@
         </c:if>
         
         <h1>Programme du cinema !</h1>
-        
+        <form action="#" method="GET"><input type="text" name="search" placeholder="Rechercher"><input type="submit" value="rechercher"></form>
         <table class="table table-striped">
             <thead>
                 <tr>

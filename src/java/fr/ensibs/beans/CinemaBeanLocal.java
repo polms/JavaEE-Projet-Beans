@@ -33,5 +33,6 @@ public interface CinemaBeanLocal {
     Programation findProgramation(int id);
     void removeProgramation(Programation f);
     void changeProgramation(Programation f);
+    List<Programation> showProgramme(String contains);
     
 }
