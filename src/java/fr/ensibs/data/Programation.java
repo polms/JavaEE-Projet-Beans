@@ -32,6 +32,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Programation.findAll", query = "SELECT p FROM Programation p")
+    , @NamedQuery(name= "Programation.findRecent", query = "SELECT p  FROM Programation p WHERE p.d >= current_date")
     , @NamedQuery(name = "Programation.findById", query = "SELECT p FROM Programation p WHERE p.id = :id")
     , @NamedQuery(name = "Programation.findByD", query = "SELECT p FROM Programation p WHERE p.d = :d")})
 public class Programation implements Serializable {

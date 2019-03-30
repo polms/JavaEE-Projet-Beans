@@ -57,6 +57,12 @@ public class ActorServlet extends HttpServlet {
                     response.sendError(404);
                     return;
                 }
+                
+                if (f.getFilmCollection().size() != 0) {
+                    ses.setAttribute("message", "acteur: "+f.getPrenom()+" "+f.getNom()+" joue dans des films. On ne peut pas le supprimer");
+                    break;
+                }
+                
                 bean.removeActeur(f);
                 
                 ses.setAttribute("message", "acteur: \""+f.getNom()+"\" Supprimer !");

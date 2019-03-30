@@ -32,7 +32,9 @@ public class IndexServlet extends HttpServlet {
             throws ServletException, IOException {
         HttpSession ses = request.getSession(true);
         getServletContext().setAttribute("message", ses.getAttribute("message"));
+        ses.setAttribute("message", null);
         
+        getServletContext().setAttribute("program", bean.showProgramme());
         getServletContext().setAttribute("actors", bean.listActeurs());
         getServletContext().setAttribute("films", bean.listFilms());
         RequestDispatcher rd=request.getRequestDispatcher("/WEB-INF/index.jsp");  

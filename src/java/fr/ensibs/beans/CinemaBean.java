@@ -32,7 +32,7 @@ public class CinemaBean implements CinemaBeanLocal {
     
     @Override
     public List<Programation> showProgramme() {
-        TypedQuery<Programation> q = em.createNamedQuery("Programation.findAll", Programation.class);
+        TypedQuery<Programation> q = em.createNamedQuery("Programation.findRecent", Programation.class);
         return q.getResultList();
     }
     
@@ -91,12 +91,24 @@ public class CinemaBean implements CinemaBeanLocal {
     @Override
     public void removeFilm(Film f) {
         Film f2 = em.merge(f);
+        
+        for (Acteur a : f2.getActeurCollection()) {
+            a.getFilmCollection().remove(f2);
+            em.merge(a);
+        }
+        
         em.remove(f2);
     }
     
     @Override
     public void removeActeur(Acteur f) {
         Acteur f2 = em.merge(f);
+        em.remove(f2);
+    }
+    
+    @Override
+    public void removeProgramation(Programation f) {
+        Programation f2 = em.merge(f);
         em.remove(f2);
     }
 
@@ -112,4 +124,20 @@ public class CinemaBean implements CinemaBeanLocal {
         return f;    
     }
     
+    @Override
+    public Programation findProgramation(int id) {
+        TypedQuery<Programation> q = em.createNamedQuery("Programation.findById", Programation.class);
+        q.setParameter("id", id);
+        Programation f = null;
+        try {
+            f = q.getSingleResult();
+        } catch (javax.persistence.NoResultException e) {
+        }
+        return f;    
+    }
+
+    @Override
+    public void changeProgramation(Programation f) {
+        em.merge(f);
+    }
 }

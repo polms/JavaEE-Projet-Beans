@@ -8,6 +8,7 @@ package fr.ensibs.servlets;
 import fr.ensibs.beans.CinemaBeanLocal;
 import fr.ensibs.data.Acteur;
 import fr.ensibs.data.Film;
+import fr.ensibs.data.Programation;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.ParseException;
@@ -30,39 +31,13 @@ import javax.servlet.http.HttpSession;
  *
  * @author rmoalic
  */
-@WebServlet(name = "FilmServlet", urlPatterns = {"/film"})
-public class FilmServlet extends HttpServlet {
+@WebServlet(name = "ProgramServlet", urlPatterns = {"/program"})
+public class ProgramServlet extends HttpServlet {
 
     @EJB
     private CinemaBeanLocal bean;
 
     
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        int id = 0;
-        try {
-            id = Integer.parseInt(request.getParameter("id"));
-        } catch (java.lang.NumberFormatException e) {
-            response.sendError(400);
-            return;
-        }
-        
-        Film f = bean.findFilm(id);
-        if (f == null) {
-            response.sendError(404);
-            return;
-        }
-        
-        getServletContext().setAttribute("film", f);
-        Collection<Acteur> acteurs = f.getActeurCollection();
-        acteurs.size();
-        getServletContext().setAttribute("acteurs", acteurs);
-        
-        RequestDispatcher rd=request.getRequestDispatcher("/WEB-INF/film.jsp");  
-        rd.forward(request, response);
-    }
-
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -71,6 +46,7 @@ public class FilmServlet extends HttpServlet {
         
         switch (action) {
             case "delete":
+            {
                 int id = 0;
                 try {
                     id = Integer.parseInt(request.getParameter("id"));
@@ -78,37 +54,60 @@ public class FilmServlet extends HttpServlet {
                     response.sendError(400);
                     return;
                 }
-                Film f = bean.findFilm(id);
+                Programation f = bean.findProgramation(id);
                 if (f == null) {
                     response.sendError(404);
                     return;
                 }
+                bean.removeProgramation(f);
                 
-                bean.removeFilm(f);
-                
-                ses.setAttribute("message", "film: \""+f.getNom()+"\" Supprimer !");
+                ses.setAttribute("message", "programe: La difusion de \""+f.getFilm().getNom()+"\" le "+f.getD()+" est annulée !");
+            }
                 break;
             case "add":
+            {
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                String nom = request.getParameter("nom");
-                String prenom = request.getParameter("producteur");
-                String[] actors = request.getParameterValues("acteurs");
-                Date sortie;
+                String id_film = request.getParameter("id");
+                Date date;
                 try {
-                    sortie = simpleDateFormat.parse(request.getParameter("sortie"));
+                    date = simpleDateFormat.parse(request.getParameter("date"));
                 } catch (ParseException ex) {
                     response.sendError(400);
                     return;
                 }
+                Film fi = bean.findFilm(Integer.parseInt(id_film));
                 
-                Film f2 = bean.addFilm(nom, prenom, sortie);
-                
-                for (String a_id: actors) {
-                    Acteur acteur = bean.findActor(Integer.parseInt(a_id));
-                    bean.addActorToFilm(acteur, f2);
+                if (fi.getSortie().after(date)) {
+                    ses.setAttribute("message", "On ne peux pas diffuser un film avant sa date de sortie");
+                    break;
                 }
                 
-                ses.setAttribute("message", "film Ajouter !");
+                bean.programFilm(fi, date);
+                ses.setAttribute("message", "Film programmer");
+            }
+                break;
+            case "modify":
+            {
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                String id_prog = request.getParameter("id");
+                Date date;
+                try {
+                    date = simpleDateFormat.parse(request.getParameter("date"));
+                } catch (ParseException ex) {
+                    response.sendError(400);
+                    return;
+                }
+                Programation p = bean.findProgramation(Integer.parseInt(id_prog));
+                
+                if (p.getFilm().getSortie().after(date)) {
+                    ses.setAttribute("message", "On ne peux pas diffuser un film avant sa date de sortie");
+                    break;
+                }
+                
+                p.setD(date);
+                bean.changeProgramation(p);
+                ses.setAttribute("message", "Film reprogrammer");
+            }
                 break;
             default:
                 response.sendError(400);

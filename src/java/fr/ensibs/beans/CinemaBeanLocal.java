@@ -30,4 +30,8 @@ public interface CinemaBeanLocal {
     Acteur findActor(int id);
     void removeFilm(Film f);
     void removeActeur(Acteur f);
+    Programation findProgramation(int id);
+    void removeProgramation(Programation f);
+    void changeProgramation(Programation f);
+    
 }
